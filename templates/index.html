@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Лингвистический сервис - Лексико-семантический анализ слова</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🔤 Лингвистический сервис</h1>
+            <p class="subtitle">Лексико-семантический анализ слова</p>
+        </header>
+
+        <div class="search-section">
+            <div class="input-group">
+                <input type="text" id="wordInput" placeholder="Введите слово на русском языке..." maxlength="50">
+                <button id="analyzeBtn" onclick="analyzeWord()">
+                    <span>🔍</span> Анализировать
+                </button>
+            </div>
+            <div class="examples">
+                <p>Примеры для анализа:</p>
+                <button class="example-btn" onclick="setExample('свет')">свет</button>
+                <button class="example-btn" onclick="setExample('бежать')">бежать</button>
+                <button class="example-btn" onclick="setExample('холодный')">холодный</button>
+                <button class="example-btn" onclick="setExample('ключ')">ключ</button>
+                <button class="example-btn" onclick="setExample('высокий')">высокий</button>
+                <button class="example-btn" onclick="setExample('огонь')">огонь</button>
+            </div>
+        </div>
+
+        <div id="loading" class="loading" style="display: none;">
+            <div class="spinner"></div>
+            <p>Анализирую слово...</p>
+        </div>
+
+        <div id="results" class="results-section" style="display: none;">
+            <div class="result-header">
+                <h2>Результаты анализа</h2>
+                <div id="wordDisplay" class="word-display"></div>
+            </div>
+            
+            <div class="results-grid">
+                <div class="result-card">
+                    <div class="card-header">
+                        <span class="icon">📖</span>
+                        <h3>Синонимы</h3>
+                    </div>
+                    <div id="sinonims" class="card-content"></div>
+                </div>
+
+                <div class="result-card">
+                    <div class="card-header">
+                        <span class="icon">⚡</span>
+                        <h3>Антонимы</h3>
+                    </div>
+                    <div id="antonims" class="card-content"></div>
+                </div>
+
+                <div class="result-card">
+                    <div class="card-header">
+                        <span class="icon">🔄</span>
+                        <h3>Омонимы</h3>
+                    </div>
+                    <div id="omonims" class="card-content"></div>
+                </div>
+
+                <div class="result-card">
+                    <div class="card-header">
+                        <span class="icon">🔤</span>
+                        <h3>Паронимы</h3>
+                    </div>
+                    <div id="paronims" class="card-content"></div>
+                </div>
+
+                <div class="result-card">
+                    <div class="card-header">
+                        <span class="icon">🌳</span>
+                        <h3>Гиперонимы (родовые понятия)</h3>
+                    </div>
+                    <div id="hyperonims" class="card-content"></div>
+                </div>
+
+                <div class="result-card">
+                    <div class="card-header">
+                        <span class="icon">🌿</span>
+                        <h3>Гипонимы (видовые понятия)</h3>
+                    </div>
+                    <div id="hyponims" class="card-content"></div>
+                </div>
+
+                <div class="result-card">
+                    <div class="card-header">
+                        <span class="icon">🧩</span>
+                        <h3>Меронимы (части целого)</h3>
+                    </div>
+                    <div id="meronims" class="card-content"></div>
+                </div>
+
+                <div class="result-card">
+                    <div class="card-header">
+                        <span class="icon">🔄</span>
+                        <h3>Конверсивы</h3>
+                    </div>
+                    <div id="conversivs" class="card-content"></div>
+                </div>
+
+                <div class="result-card">
+                    <div class="card-header">
+                        <span class="icon">📝</span>
+                        <h3>Омографы</h3>
+                    </div>
+                    <div id="omographs" class="card-content"></div>
+                </div>
+
+                <div class="result-card">
+                    <div class="card-header">
+                        <span class="icon">⚠️</span>
+                        <h3>Энантиосемия</h3>
+                    </div>
+                    <div id="enantiosemy" class="card-content"></div>
+                </div>
+
+                <div class="result-card">
+                    <div class="card-header">
+                        <span class="icon">🎯</span>
+                        <h3>Квазисинонимы</h3>
+                    </div>
+                    <div id="quasisynonyms" class="card-content"></div>
+                </div>
+
+                <div class="result-card">
+                    <div class="card-header">
+                        <span class="icon">🎭</span>
+                        <h3>Стилистические синонимы</h3>
+                    </div>
+                    <div id="stylistics" class="card-content"></div>
+                </div>
+
+                <div class="result-card">
+                    <div class="card-header">
+                        <span class="icon">⭐</span>
+                        <h3>Абсолютные синонимы</h3>
+                    </div>
+                    <div id="absolute" class="card-content"></div>
+                </div>
+
+                <div class="result-card">
+                    <div class="card-header">
+                        <span class="icon">🔄</span>
+                        <h3>Лексические варианты</h3>
+                    </div>
+                    <div id="variants" class="card-content"></div>
+                </div>
+
+                <div class="result-card">
+                    <div class="card-header">
+                        <span class="icon">🔄</span>
+                        <h3>Конверсивы</h3>
+                    </div>
+                    <div id="conversives" class="card-content"></div>
+                </div>
+
+                <div class="result-card">
+                    <div class="card-header">
+                        <span class="icon">📖</span>
+                        <h3>Функциональные омонимы</h3>
+                    </div>
+                    <div id="functional" class="card-content"></div>
+                </div>
+
+            </div>
+        </div>
+
+        <div id="error" class="error" style="display: none;"></div>
+    </div>
+
+    <script>
+        async function analyzeWord() {
+            const wordInput = document.getElementById('wordInput');
+            const word = wordInput.value.trim();
+            
+            if (!word) {
+                showError('Пожалуйста, введите слово для анализа');
+                return;
+            }
+            
+            if (word.length > 50) {
+                showError('Слово не должно превышать 50 символов');
+                return;
+            }
+            
+            // Показываем загрузку
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('results').style.display = 'none';
+            document.getElementById('error').style.display = 'none';
+            
+            try {
+                const response = await fetch('/analyze', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ word: word })
+                });
+                
+                const data = await response.json();
+                
+                if (response.status === 400 || response.status === 500) {
+                    showError(data.сообщение || 'Произошла ошибка');
+                    return;
+                }
+                
+                displayResults(data);
+                
+            } catch (error) {
+                showError('Ошибка соединения с сервером. Убедитесь, что сервер запущен.');
+                console.error('Error:', error);
+            } finally {
+                document.getElementById('loading').style.display = 'none';
+            }
+        }
+        
+        function displayResults(data) {
+            if (data.статус === 'ошибка') {
+                showError(data.сообщение);
+                return;
+            }
+            
+            // Показываем слово
+            const wordDisplay = document.getElementById('wordDisplay');
+            if (data.статус === 'успех') {
+                wordDisplay.innerHTML = `<strong>«${data.слово}»</strong> <span style="color: green;">✓</span>`;
+            } else {
+                wordDisplay.innerHTML = `<strong>«${data.слово}»</strong> <span style="color: orange;">(не найдено в базе данных)</span>`;
+            }
+            
+            // Отображаем результаты
+            const results = data.результаты;
+            
+            displayList('sinonims', results.синонимы, 'синонимы');
+            displayList('antonims', results.антонимы, 'антонимы');
+            displayList('omonims', results.омонимы, 'омонимы');
+            displayList('paronims', results.паронимы, 'паронимы');
+            displayList('hyperonims', results.гиперонимы, 'гиперонимы');
+            displayList('hyponims', results.гипонимы, 'гипонимы');
+            displayList('meronims', results.меронимы, 'меронимы');
+            displayList('conversivs', results.конверсивы, 'конверсивы');
+            displayList('omographs', results.омографы, 'омографы');
+            displayList('enantiosemy', results.энантиосемия, 'энантиосемию');
+            displayList('quasisynonyms', results.квазисинонимы, 'квазисинонимы');
+            displayList('stylistics', results.стилистические_синонимы, 'стилистические синонимы');
+            displayList('absolute', results.абсолютные_синонимы, 'абсолютные синонимы');
+            displayList('variants', results.лексические_варианты, 'лексические варианты');
+            displayList('conversives', results.конверсивы, 'конверсивы');
+            displayList('functional', results.функциональные_омонимы, 'функциональные омонимы');
+            
+            // Показываем результаты
+            document.getElementById('results').style.display = 'block';
+        }
+        
+        function displayList(elementId, items, title) {
+            const element = document.getElementById(elementId);
+            if (!element) return;
+            
+            if (items && items.length > 0) {
+                let html = '<div class="tags">';
+                items.forEach(item => {
+                    html += `<span class="tag">${escapeHtml(item)}</span>`;
+                });
+                html += '</div>';
+                element.innerHTML = html;
+            } else {
+                element.innerHTML = '<p class="no-data">❌ Не найдено</p>';
+            }
+        }
+        
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        function showError(message) {
+            const errorDiv = document.getElementById('error');
+            errorDiv.innerHTML = `<strong>Ошибка:</strong> ${message}`;
+            errorDiv.style.display = 'block';
+            document.getElementById('results').style.display = 'none';
+            
+            setTimeout(() => {
+                errorDiv.style.display = 'none';
+            }, 5000);
+        }
+        
+        function setExample(word) {
+            document.getElementById('wordInput').value = word;
+            analyzeWord();
+        }
+        
+        // Добавляем обработку Enter
+        document.getElementById('wordInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                analyzeWord();
+            }
+        });
+        
+        // Инициализация
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Сервис готов к работе');
+        });
+    </script>
+</body>
+</html>
